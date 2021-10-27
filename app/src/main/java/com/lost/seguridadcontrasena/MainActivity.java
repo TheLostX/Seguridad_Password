@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.Patterns;
 import android.widget.Toast;
@@ -14,24 +15,31 @@ import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
 
+import com.google.android.material.textfield.TextInputLayout;
 import com.lost.seguridadcontrasena.databinding.ActivityMainBinding;
+import com.lost.seguridadcontrasena.presentador.Presenter;
+import com.lost.seguridadcontrasena.vista.IView;
 
-public class MainActivity extends AppCompatActivity{
+public class MainActivity extends AppCompatActivity implements IView {
 
     ActivityMainBinding binding;
+    Presenter presenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        onTextChangedListener();
+
+        presenter = new Presenter(this);
+
+        setupListener();
     }
 
-    private void onTextChangedListener(){
+    private void setupListener() {
 
         binding.etPass.addTextChangedListener(new TextWatcher() {
-
+            
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
@@ -39,9 +47,7 @@ public class MainActivity extends AppCompatActivity{
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                //changeColor(charSequence);
-                changeColor(charSequence.toString());
-
+                presenter.procesarPassword(charSequence.toString());
             }
 
             @Override
@@ -51,70 +57,24 @@ public class MainActivity extends AppCompatActivity{
         });
     }
 
-    private void changeColor(String pass){
 
-        boolean isLowerCase = false;
-
-        for(int i = 0; i < pass.length(); i++){
-
-            if(Character.isLowerCase(pass.charAt(i))){
-                isLowerCase = true;
-            }
-
-            else{
-                isLowerCase = false;
-                break;
-            }
-        }
-
-        if(pass.length()<6){
-            binding.etPass.setBackgroundColor(Color.RED);
-        }
-        else if(pass.length()>=6 && isLowerCase){
-            binding.etPass.setBackgroundColor(Color.YELLOW);
-        }
-        else{
-            binding.etPass.setBackgroundColor(Color.GREEN);
-        }
-
+    @Override
+    public void showBackgroundRed() {
+        binding.etPass.setBackgroundColor(Color.RED);
     }
 
-
-    private void changeColor(CharSequence pass){
-
-        boolean isLowerCase = false;
-        ArrayList<Boolean> arreglo = new ArrayList<>();
-        Pattern pt = Pattern.compile("[a-z]");
-        Matcher mt;
-
-
-        for(int i = 0; i< pass.length(); i++){
-
-            mt = pt.matcher(String.valueOf(pass.charAt(i)));
-            arreglo.add(mt.matches());
-        }
-
-        for(Boolean value: arreglo){
-
-            if(value){
-                isLowerCase = true;
-            }
-            else{
-                isLowerCase = false;
-                break;
-            }
-        }
-
-        if(pass.length()<6){
-            binding.etPass.setBackgroundColor(Color.RED);
-        }
-        else if(pass.length()>=6 && isLowerCase){
-            binding.etPass.setBackgroundColor(Color.YELLOW);
-        }
-        else{
-            binding.etPass.setBackgroundColor(Color.GREEN);
-        }
-
+    @Override
+    public void showBackgroundYellow() {
+        binding.etPass.setBackgroundColor(Color.YELLOW);
     }
 
+    @Override
+    public void showBackgroundGreen() {
+        binding.etPass.setBackgroundColor(Color.GREEN);
+    }
+
+    @Override
+    public void clearBackground() {
+        binding.etPass.setBackgroundColor(Color.WHITE);
+    }
 }
